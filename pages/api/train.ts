@@ -2,24 +2,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import classifierPromise from './../../classifier';
 
-type Data = {
-  result: 'negative' | 'positive'
-}
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<any>
 ) {
   const {
-    body: { sentence },
+    body: { sentence, stem },
     method,
   } = req
 
   switch (method) {
     case 'POST':
-      // your check of sentence with your model trained
       const classifier = await classifierPromise;
-      res.status(200).json({ result: classifier.classify(sentence) })
+      // your check of sentence with your model trained
+      classifier.addDocument(sentence, stem)
+      classifier.train();
+      classifier.save('classifier.json', function(err, classifier) {
+        res.status(200).json({ ok: 200 })
+      });
+      
       break
     default:
       res.setHeader('Allow', ['POST'])

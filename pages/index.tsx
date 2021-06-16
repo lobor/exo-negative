@@ -8,8 +8,15 @@ export default function Home() {
   const [hasChange, setHasChange] = useState(false);
   const [{ data, loading, error }, refetch] = useAxios(
     {
-      url: '/api/checkModel',
-      method: 'POST'
+      url: "/api/checkModel",
+      method: "POST",
+    },
+    { manual: true }
+  );
+  const [{ loading: loadingTrain }, train] = useAxios(
+    {
+      url: "/api/train",
+      method: "POST",
     },
     { manual: true }
   );
@@ -56,7 +63,46 @@ export default function Home() {
         </div>
         <div>
           {loading && <div>Loading...</div>}
-          {!hasChange && !loading && data && <div>{data.result}</div>}
+          {!hasChange && !loading && data && (
+            <div>
+              <span>{data.result}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (inputRef.current) {
+                    train({
+                      data: {
+                        sentence: inputRef.current.value,
+                        stem:
+                          data.result === "positive" ? "negative" : "positive",
+                      },
+                    });
+                  }
+                }}
+                className={styles.button}
+                disabled={loading}
+              >
+                Wrong
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (inputRef.current) {
+                    train({
+                      data: {
+                        sentence: inputRef.current.value,
+                        stem: data.result,
+                      },
+                    });
+                  }
+                }}
+                className={styles.button}
+                disabled={loading}
+              >
+                Valide
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
